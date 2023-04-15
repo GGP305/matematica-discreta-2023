@@ -58,7 +58,21 @@ class Entrega {
      * És cert que ∀x ∃!y. P(x) -> Q(x,y) ?
      */
     static boolean exercici1(int[] universe, Predicate<Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TO DO
+    for (int x : universe) {
+            boolean primerTrobat = false;
+            for (int y : universe) {
+                if (q.test(x, y)) {
+                    if (primerTrobat) {
+                        return false; // Hay más de un y que cumple la expresión para este x
+                    }
+                    primerTrobat = true;
+                }
+            }
+            if (p.test(x) && !primerTrobat) {
+                return false; // No se cumple la expresión para este x porque no hay un único y
+            }
+        }
+        return true; // La expresión se cumple para todos los valores de x en el universo
     }
 
     /*
@@ -72,7 +86,24 @@ class Entrega {
      * És cert que ∃x,y ∀z. P(x,z) ⊕ Q(y,z) ?
      */
     static boolean exercici3(int[] universe, BiPredicate<Integer, Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TO DO
+    for (int z : universe) {
+                    if (!pxorq(z,universe,p,q)) {
+                        return false;
+                    }
+                }
+        return true; 
+    }
+    static boolean pxorq(int z,int[] universe, BiPredicate<Integer, Integer> p, BiPredicate<Integer, Integer> q){
+        for (int y : universe) {
+            for (int x : universe) {
+                boolean resP = p.test(x, z);
+                boolean resQ = q.test(y, z);
+                if ((resP && !resQ) || (!resP && resQ)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /*
