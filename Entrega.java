@@ -110,7 +110,21 @@ class Entrega {
      * És cert que (∀x. P(x)) -> (∀x. Q(x)) ?
      */
     static boolean exercici4(int[] universe, Predicate<Integer> p, Predicate<Integer> q) {
-      return false; // TO DO
+              boolean pTrue = true;
+        for (int x : universe) {
+            if (!p.test(x)) {
+                pTrue = false;
+                break;
+            }
+        }
+        if (pTrue) {
+            for (int x : universe) {
+                if (!q.test(x)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /*
