@@ -79,8 +79,22 @@ class Entrega {
      * És cert que ∃!x ∀y. P(y) -> Q(x,y) ?
      */
     static boolean exercici2(int[] universe, Predicate<Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TO DO
+    int saveX = 0;
+    boolean foundX = false;
+    for (int y : universe) {
+        for(int x : universe){
+            if(!p.test(y)||q.test(x,y)) {//si es cert
+                if((!foundX)){//comprovar si ja hem trobat un valor de x
+                foundX = true;
+                saveX = x;
+                }else{
+                    if(saveX!=x) return false;
+                }
+            }
+        }
     }
+    return false;
+}
 
     /*
      * És cert que ∃x,y ∀z. P(x,z) ⊕ Q(y,z) ?
