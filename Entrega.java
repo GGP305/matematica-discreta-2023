@@ -107,18 +107,6 @@ class Entrega {
                 }
         return true; 
     }
-    static boolean pxorq(int z,int[] universe, BiPredicate<Integer, Integer> p, BiPredicate<Integer, Integer> q){
-        for (int y : universe) {
-            for (int x : universe) {
-                boolean resP = p.test(x, z);
-                boolean resQ = q.test(y, z);
-                if ((resP && !resQ) || (!resP && resQ)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     /*
      * És cert que (∀x. P(x)) -> (∀x. Q(x)) ?
@@ -256,8 +244,10 @@ class Entrega {
      * Podeu soposar que `a` està ordenat de menor a major.
      */
     static int exercici2(int[] a, int[][] rel) {
-      return 0; // TO DO
-    }
+            if (esReflexivaiSim(a, rel) && esTransitiva(a, rel))  return true;
+            else
+                return false;
+        }
 
     /*
      * Comprovau si la relació `rel` definida entre `a` i `b` és una funció.
@@ -409,6 +399,67 @@ class Entrega {
     if (!b)
       throw new AssertionError();
   }
+      /*
+     * MÈTODES AUXILIARS:
+     * Cada mètode auxiliar està ordenat per orde d'ús i indica de quin exercici és
+     */
+
+    // Tema 1 exercici 3. Mètode que verifica el resultat de P xor Q per qualsevol
+    // parell de
+    // x i y donat un valor z per paràmetre
+    static boolean PxorQ(int z, int[] universe, BiPredicate<Integer, Integer> p, BiPredicate<Integer, Integer> q) {
+        for (int y : universe) {
+            for (int x : universe) {
+                boolean resP = p.test(x, z);
+                boolean resQ = q.test(y, z);
+                if ((resP && !resQ) || (!resP && resQ)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    //Tema 2 Exercici 1, mètode que indica si una relació és reflexiva i simètrica
+    static boolean esReflexivaiSim(int[] a, int[][] rel) {
+        int repsCount = 0;
+        for (int i = 0; i < rel.length; i++) {
+            if (rel[i][0] == rel[i][1]) {
+                repsCount++; // comprovació reflexivitat
+            } else// comprovació simetria
+            if (!estaRelacionat(rel, rel[i][1], rel[i][0]))
+                return false;
+        }
+        return repsCount == a.length; // si hem arribat aqui vol dir que és simètrica i si el contador
+                                      // de repeticions es igual a la longitud de l'array és reflexiva
+    }
+    //Tema 2 Exercici 1, mètode que indica si una relació és transitiva
+    static boolean esTransitiva(int[] a, int[][] rel) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a.length; j++) {
+                for (int k = 0; k < a.length; k++) {
+                    // Si (a[i], a[j]) y (a[j], a[k]) estàn a la relació,
+                    // doncs (a[i], a[k]) també ho han de estar
+                    if (estaRelacionat(rel, a[i], a[j]) && estaRelacionat(rel, a[j], a[k])) {
+                        // si després de comprovar si està a la relació
+                        if (!estaRelacionat(rel, a[i], a[k])) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    // Tema 2 exercici 1, mètode per verificar si un par (x,y) estàn a la relació
+    static boolean estaRelacionat(int[][] rel, int x, int y) {
+        for (int i = 0; i < rel.length; i++) {
+            if (rel[i][0] == x && rel[i][1] == y) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 // vim: set textwidth=100 shiftwidth=2 expandtab :
