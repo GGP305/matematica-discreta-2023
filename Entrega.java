@@ -581,54 +581,56 @@ class Entrega {
      * del graf subjacent. Suposau que totes les arestes tenen pes 1.
      */
     static int exercici4(int[][] g) {
-      int n = g.length;
-
-      // Define two lists to store the distances and the visited status of the nodes.
-      List<Integer> dist = new ArrayList<>(n);
-      List<Boolean> visited = new ArrayList<>(n);
-
-      // Initialize the distance and visited lists.
-      for (int i = 0; i < n; i++) {
-        dist.add(0);
-        visited.add(false);
-      }
-
-      // Start DFS from the root node to find one end of the diameter.
-      DFS(0, g, visited, dist);
-
-      // Find the node with the maximum distance from the root.
-      int maxDist = 0, maxNode = 0;
-      for (int i = 0; i < n; i++) {
-        if (dist.get(i) > maxDist) {
-          maxDist = dist.get(i);
-          maxNode = i;
+      int[][] tmp = g;
+      for (var i = 0; i < tmp.length; i++) {
+        var a = tmp[i];
+        for (var j = 0; j < a.length; j++) {
+          var b = a[j];
+          if (!Arrays.asList(g[b]).contains(i)) {
+            var newVal = new int[g[b].length + 1];
+            System.arraycopy(g[b], 0, newVal, 0, g[b].length);
+            newVal[newVal.length - 1] = i;
+            g[b] = newVal;
+          }
         }
       }
 
-      // Reset the distance and visited lists for the next DFS.
-      dist.clear();
-      visited.clear();
+      int n = g.length;
+      int[] dist = new int[n];
+      boolean[] visited = new boolean[n];
+
+      // First DFS to find the farthest vertex from the root
+      dfs(g, 0, dist, visited);
+      int farthestVertex = 0;
       for (int i = 0; i < n; i++) {
-        dist.add(0);
-        visited.add(false);
+        if (dist[i] > dist[farthestVertex]) {
+          farthestVertex = i;
+        }
       }
 
-      // Start DFS from the node with maximum distance found in the first DFS.
-      DFS(maxNode, g, visited, dist);
+      // Second DFS to find the farthest vertex from the farthest vertex found in the
+      // first DFS
+      dist = new int[n];
+      visited = new boolean[n];
+      dfs(g, farthestVertex, dist, visited);
+      int diameter = 0;
+      for (int i = 0; i < n; i++) {
+        if (dist[i] > diameter) {
+          diameter = dist[i];
+        }
+      }
 
-      // Return the maximum distance found in the second DFS.
-      return dist.stream().max(Integer::compare).orElse(0);
+      return diameter;
     }
 
-    static void DFS(int node, int[][] g, List<Boolean> visited, List<Integer> dist) {
-      // Mark the current node as visited.
-      visited.set(node, true);
-
-      // Explore the neighbors of the current node.
-      for (int neighbor : g[node]) {
-        if (!visited.get(neighbor)) {
-          dist.set(neighbor, dist.get(node) + 1);
-          DFS(neighbor, g, visited, dist);
+    // Helper function to perform a DFS and calculate the distances from the start
+    // vertex
+    static void dfs(int[][] g, int start, int[] dist, boolean[] visited) {
+      visited[start] = true;
+      for (int neighbor : g[start]) {
+        if (!visited[neighbor]) {
+          dist[neighbor] = dist[start] + 1;
+          dfs(g, neighbor, dist, visited);
         }
       }
     }
@@ -736,9 +738,8 @@ class Entrega {
       assertThat(exercici3(directedG1, 0) == 3);
       assertThat(exercici3(directedRTree1, 2) == 3);
 
-      //TO DO
-      // assertThat(exercici4(directedRTree1) == 5);
-      // assertThat(exercici4(directedRTree2) == 4);
+      assertThat(exercici4(directedRTree1) == 5);
+      assertThat(exercici4(directedRTree2) == 4);
     }
   }
 
@@ -762,7 +763,61 @@ class Entrega {
      * Si no en té, retornau null.
      */
     static int[] exercici1(int a, int b, int n) {
-      return null; // TODO
+      a = ((a % n) + n) % n; // Ensure a is positive
+      b = ((b % n) + n) % n; // Ensure b is positive
+
+      int greatestCommonDivisor = gcd(a, n);
+
+      // If greatestCommonDivisor does not divide b, then there is no solution
+      if (b % greatestCommonDivisor != 0) {
+        return null;
+      }
+
+      // Find the modular inverse
+      int inverse = findModInverse(a / greatestCommonDivisor, n / greatestCommonDivisor);
+
+      // If the modular inverse does not exist, then there is no solution
+      if (inverse == -1) {
+        return null;
+      }
+
+      // Multiply the modular inverse by b/greatestCommonDivisor to get the solution
+      int solution = (inverse * (b / greatestCommonDivisor)) % (n / greatestCommonDivisor);
+
+      return new int[] { solution, n / greatestCommonDivisor };
+
+    }
+
+    static int gcd(int a, int b) {
+      if (b == 0) {
+        return a;
+      } else {
+        return gcd(b, a % b);
+      }
+    }
+
+    static int findModInverse(int a, int m) {
+      a = a % m;
+
+      for (int x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+          return x;
+        }
+      }
+
+      return -1;
+    }
+
+    static long findModInverse(long a, long m) {
+      a = a % m;
+
+      for (long x = 1; x < m; x++) {
+        if ((a * x) % m == 1) {
+          return x;
+        }
+      }
+
+      return -1;
     }
 
     /*
@@ -782,7 +837,33 @@ class Entrega {
      * Si no en té, retornau null.
      */
     static int[] exercici2a(int[] b, int[] n) {
-      return null; // TO DO
+      int length = b.length;
+      long totalModulusProduct = 1;
+
+      // Calculate the product of all moduli
+      for (int currentModulus : n) {
+        totalModulusProduct *= currentModulus;
+      }
+
+      long solution = 0;
+      // For each congruence, calculate the product of all moduli except the current
+      // one
+      for (int i = 0; i < length; i++) {
+        long partialModulusProduct = totalModulusProduct / n[i];
+        long inverse = findModInverse(partialModulusProduct, n[i]);
+
+        // If the modular inverse does not exist, then there is no solution
+        if (inverse == -1) {
+          return null;
+        }
+
+        // Solution
+        solution += ((b[i] % n[i] + n[i]) % n[i]) * partialModulusProduct * inverse;
+        solution %= totalModulusProduct;
+      }
+
+      return new int[] { (int) solution, (int) totalModulusProduct };
+
     }
 
     /*
@@ -802,7 +883,18 @@ class Entrega {
      * Si no en té, retornau null.
      */
     static int[] exercici2b(int[] a, int[] b, int[] n) {
-      return null; // TO DO
+
+      int[] temp;
+      for (int i = 0; i < a.length; i++) {
+        // Solve each congruence to get it in the form x ≡ b[] (mod n[])
+        temp = exercici1(a[i], b[i], n[i]);
+        b[i] = temp[0];
+        n[i] = temp[1];
+      }
+      // Call the function to solve the system of congruences now in the form x ≡ b[]
+      // (mod n[])
+      temp = exercici2a(b, n);
+      return temp;
     }
 
     /*
@@ -816,19 +908,15 @@ class Entrega {
      * la força bruta
      * (el que coneixeu com el mètode manual d'anar provant).
      */
-    public static int[] exercici3a(int n) {
-      List<Integer> factors = new ArrayList<>();
-        for (int i = 2; i <= n; i++) {
-            while (n % i == 0) {
-                factors.add(i);
-                n /= i;
-            }
+    public static ArrayList<Integer> exercici3a(int n) {
+      ArrayList<Integer> factors = new ArrayList<>();
+      for (int i = 2; i <= n; i++) {
+        while (n % i == 0) {
+          factors.add(i);
+          n /= i;
         }
-        int[] result = new int[factors.size()];
-        for (int i = 0; i < factors.size(); i++) {
-            result[i] = factors.get(i);
-        }
-        return result;
+      }
+      return factors;
     }
 
     /*
@@ -843,7 +931,30 @@ class Entrega {
      * No, tampoc podeu utilitzar `double`.
      */
     static int exercici3b(int n) {
-      return 0;
+      ArrayList<Integer> factorizacion = exercici3a(n);
+      int primers, phi = 1, equivalentes;
+      while (!factorizacion.isEmpty()) {
+        equivalentes = 0;
+        primers = factorizacion.get(0);
+        equivalentes++;
+        factorizacion.remove(0);
+        while (!factorizacion.isEmpty() && factorizacion.get(0) == primers) {
+          equivalentes++;
+          factorizacion.remove(0);
+        }
+        phi *= pow(primers, equivalentes) - pow(primers, (equivalentes - 1));
+      }
+      phi *= n;
+      phi *= n;
+      return phi;
+    }
+
+    private static int pow(int a, int b) {
+      int res = 1;
+      for (int i = 0; i < b; i++) {
+        res *= a;
+      }
+      return res;
     }
 
     /*
@@ -851,37 +962,35 @@ class Entrega {
      * `main`)
      */
     static void tests() {
-      //TODO
-      // assertThat(Arrays.equals(exercici1(17, 1, 30), new int[] { 23, 30 }));
-      // assertThat(Arrays.equals(exercici1(-2, -4, 6), new int[] { 2, 3 }));
-      // assertThat(exercici1(2, 3, 6) == null);
+      assertThat(Arrays.equals(exercici1(17, 1, 30), new int[] { 23, 30 }));
+      assertThat(Arrays.equals(exercici1(-2, -4, 6), new int[] { 2, 3 }));
+      assertThat(exercici1(2, 3, 6) == null);
 
-      // assertThat(
-      //     exercici2a(
-      //         new int[] { 1, 0 },
-      //         new int[] { 2, 4 }) == null);
+      assertThat(
+          exercici2a(
+              new int[] { 1, 0 },
+              new int[] { 2, 4 }) == null);
 
-      // assertThat(
-      //     Arrays.equals(
-      //         exercici2a(
-      //             new int[] { 3, -1, 2 },
-      //             new int[] { 5, 8, 9 }),
-      //         new int[] { 263, 360 }));
+      assertThat(
+          Arrays.equals(
+              exercici2a(
+                  new int[] { 3, -1, 2 },
+                  new int[] { 5, 8, 9 }),
+              new int[] { 263, 360 }));
 
-      // assertThat(
-      //     exercici2b(
-      //         new int[] { 1, 1 },
-      //         new int[] { 1, 0 },
-      //         new int[] { 2, 4 }) == null);
+      assertThat(
+          exercici2b(
+              new int[] { 1, 1 },
+              new int[] { 1, 0 },
+              new int[] { 2, 4 }) == null);
 
-      // assertThat(
-      //     Arrays.equals(
-      //         exercici2b(
-      //             new int[] { 2, -1, 5 },
-      //             new int[] { 6, 1, 1 },
-      //             new int[] { 10, 8, 9 }),
-      //         new int[] { 263, 360 }));
-
+      assertThat(
+          Arrays.equals(
+              exercici2b(
+                  new int[] { 2, -1, 5 },
+                  new int[] { 6, 1, 1 },
+                  new int[] { 10, 8, 9 }),
+              new int[] { 263, 360 }));
       assertThat(exercici3a(10).equals(List.of(2, 5)));
       assertThat(exercici3a(1291).equals(List.of(1291)));
       assertThat(exercici3a(1292).equals(List.of(2, 2, 17, 19)));
@@ -893,7 +1002,7 @@ class Entrega {
       assertThat(exercici3b(1292) == 961_496_064);
 
       // Aquest exemple té el resultat fora de rang
-      // assertThat(exercici3b(1291) == 2_150_018_490);
+      // assertThat(exercici3b(1291) == 2_150_018_490l);
     }
   }
 
