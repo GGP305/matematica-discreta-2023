@@ -2,9 +2,7 @@ import java.lang.AssertionError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -120,7 +118,7 @@ class Entrega {
           for (int z : universe) {
             boolean pxz = p.test(x, z);
             boolean qyz = q.test(y, z);
-            if (!(pxz ^ qyz)) { // if P(x, z) XOR Q(y, z) does not hold
+            if (!(pxz ^ qyz)) { // si P(x, z) XOR Q(y, z) no es compleix
               validPair = false;
               break;
             }
@@ -139,22 +137,25 @@ class Entrega {
     static boolean exercici4(int[] universe, Predicate<Integer> p, Predicate<Integer> q) {
       for (int x : universe) {
         if (!p.test(x)) {
-          // If for any x, P(x) does not hold, then the premise of the implication is
-          // false,
-          // and hence the implication is true.
+          // Si per a qualsevol x, P(x) no es compleix, aleshores la premissa de la
+          // implicació és
+          // fals,
+          // i, per tant, la implicació és certa.
           return true;
         }
       }
       for (int x : universe) {
         if (!q.test(x)) {
-          // If for any x, Q(x) does not hold, then the conclusion of the implication is
-          // false,
-          // and hence the implication is false.
+          // Si per a qualsevol x, Q(x) no es compleix, llavors la conclusió de la
+          // implicació és
+          // fals,
+          // i, per tant, la implicació és falsa.
           return false;
         }
       }
-      // If for all x, Q(x) holds, then the conclusion of the implication is true,
-      // and hence the implication is true.
+      // Si per a tot x, Q(x) es compleix, aleshores la conclusió de la implicació és
+      // certa,
+      // i, per tant, la implicació és certa.
       return true;
     }
 
@@ -254,21 +255,21 @@ class Entrega {
      * Podeu soposar que `a` està ordenat de menor a major.
      */
     static boolean exercici1(int[] a, int[][] rel) {
-      // Check reflexivity
+      // Comprovar la reflexivitat
       for (int x : a) {
         if (!containsPair(rel, x, x)) {
           return false;
         }
       }
 
-      // Check symmetry
+      // Comprovar la simetria
       for (int[] pair : rel) {
         if (!containsPair(rel, pair[1], pair[0])) {
           return false;
         }
       }
 
-      // Check transitivity
+      // Comprovar la transitivitat
       for (int[] pair1 : rel) {
         for (int[] pair2 : rel) {
           if (pair1[1] == pair2[0] && !containsPair(rel, pair1[0], pair2[1])) {
@@ -599,7 +600,7 @@ class Entrega {
       int[] dist = new int[n];
       boolean[] visited = new boolean[n];
 
-      // First DFS to find the farthest vertex from the root
+      // Primer DFS a trobar el vèrtex més allunyat de l'arrel
       dfs(g, 0, dist, visited);
       int farthestVertex = 0;
       for (int i = 0; i < n; i++) {
@@ -608,8 +609,8 @@ class Entrega {
         }
       }
 
-      // Second DFS to find the farthest vertex from the farthest vertex found in the
-      // first DFS
+      // Segon DFS per trobar el vèrtex més allunyat del vèrtex més llunyà trobat al
+       // primer DFS
       dist = new int[n];
       visited = new boolean[n];
       dfs(g, farthestVertex, dist, visited);
@@ -623,8 +624,8 @@ class Entrega {
       return diameter;
     }
 
-    // Helper function to perform a DFS and calculate the distances from the start
-    // vertex
+    // Funció d'ajuda per realitzar un DFS i calcular les distàncies des de l'inici
+     // vèrtex
     static void dfs(int[][] g, int start, int[] dist, boolean[] visited) {
       visited[start] = true;
       for (int neighbor : g[start]) {
@@ -763,25 +764,25 @@ class Entrega {
      * Si no en té, retornau null.
      */
     static int[] exercici1(int a, int b, int n) {
-      a = ((a % n) + n) % n; // Ensure a is positive
-      b = ((b % n) + n) % n; // Ensure b is positive
+      a = ((a % n) + n) % n; // Assegureu-vos que a és positiu
+      b = ((b % n) + n) % n; // Assegureu-vos que b és positiu
 
       int greatestCommonDivisor = gcd(a, n);
 
-      // If greatestCommonDivisor does not divide b, then there is no solution
+      // Si greatestCommonDivisor no divideix b, aleshores no hi ha solució
       if (b % greatestCommonDivisor != 0) {
         return null;
       }
 
-      // Find the modular inverse
+      // Troba la inversa modular
       int inverse = findModInverse(a / greatestCommonDivisor, n / greatestCommonDivisor);
 
-      // If the modular inverse does not exist, then there is no solution
+      // Si la inversa modular no existeix, aleshores no hi ha solució
       if (inverse == -1) {
         return null;
       }
 
-      // Multiply the modular inverse by b/greatestCommonDivisor to get the solution
+      // Multiplica la inversa modular per b/greatestCommonDivisor per obtenir la solució
       int solution = (inverse * (b / greatestCommonDivisor)) % (n / greatestCommonDivisor);
 
       return new int[] { solution, n / greatestCommonDivisor };
@@ -840,24 +841,24 @@ class Entrega {
       int length = b.length;
       long totalModulusProduct = 1;
 
-      // Calculate the product of all moduli
+      // Calcula el producte de tots els mòduls
       for (int currentModulus : n) {
         totalModulusProduct *= currentModulus;
       }
 
       long solution = 0;
-      // For each congruence, calculate the product of all moduli except the current
-      // one
+      // Per a cada congruència, calcula el producte de tots els mòduls excepte el corrent
+       // una
       for (int i = 0; i < length; i++) {
         long partialModulusProduct = totalModulusProduct / n[i];
         long inverse = findModInverse(partialModulusProduct, n[i]);
 
-        // If the modular inverse does not exist, then there is no solution
+        // Si la inversa modular no existeix, aleshores no hi ha solució
         if (inverse == -1) {
           return null;
         }
 
-        // Solution
+        // Solució
         solution += ((b[i] % n[i] + n[i]) % n[i]) * partialModulusProduct * inverse;
         solution %= totalModulusProduct;
       }
@@ -886,13 +887,13 @@ class Entrega {
 
       int[] temp;
       for (int i = 0; i < a.length; i++) {
-        // Solve each congruence to get it in the form x ≡ b[] (mod n[])
+        // Resol cada congruència per obtenir-la en la forma x ≡ b[] (mod n[])
         temp = exercici1(a[i], b[i], n[i]);
         b[i] = temp[0];
         n[i] = temp[1];
       }
-      // Call the function to solve the system of congruences now in the form x ≡ b[]
-      // (mod n[])
+      // Crida la funció per resoldre el sistema de congruències ara en la forma x ≡ b[]
+       // (modificació n[])
       temp = exercici2a(b, n);
       return temp;
     }
@@ -908,7 +909,7 @@ class Entrega {
      * la força bruta
      * (el que coneixeu com el mètode manual d'anar provant).
      */
-    public static ArrayList<Integer> exercici3a(int n) {
+    static ArrayList<Integer> exercici3a(int n) {
       ArrayList<Integer> factors = new ArrayList<>();
       for (int i = 2; i <= n; i++) {
         while (n % i == 0) {
@@ -931,18 +932,18 @@ class Entrega {
      * No, tampoc podeu utilitzar `double`.
      */
     static int exercici3b(int n) {
-      ArrayList<Integer> factorizacion = exercici3a(n);
-      int primers, phi = 1, equivalentes;
-      while (!factorizacion.isEmpty()) {
-        equivalentes = 0;
-        primers = factorizacion.get(0);
-        equivalentes++;
-        factorizacion.remove(0);
-        while (!factorizacion.isEmpty() && factorizacion.get(0) == primers) {
-          equivalentes++;
-          factorizacion.remove(0);
+      ArrayList<Integer> factuous = exercici3a(n);
+      int primerprimer, phi = 1, count;
+      while (!factuous.isEmpty()) {
+        count = 0;
+        primerprimer = factuous.get(0);
+        count++;
+        factuous.remove(0);
+        while (!factuous.isEmpty() && factuous.get(0) == primerprimer) {
+          count++;
+          factuous.remove(0);
         }
-        phi *= pow(primers, equivalentes) - pow(primers, (equivalentes - 1));
+        phi *= pow(primerprimer, count) - pow(primerprimer, (count - 1));
       }
       phi *= n;
       phi *= n;
@@ -991,6 +992,7 @@ class Entrega {
                   new int[] { 6, 1, 1 },
                   new int[] { 10, 8, 9 }),
               new int[] { 263, 360 }));
+
       assertThat(exercici3a(10).equals(List.of(2, 5)));
       assertThat(exercici3a(1291).equals(List.of(1291)));
       assertThat(exercici3a(1292).equals(List.of(2, 2, 17, 19)));
@@ -1002,7 +1004,7 @@ class Entrega {
       assertThat(exercici3b(1292) == 961_496_064);
 
       // Aquest exemple té el resultat fora de rang
-      // assertThat(exercici3b(1291) == 2_150_018_490l);
+      // assertThat(exercici3b(1291) == 2_150_018_490);
     }
   }
 
